@@ -28,14 +28,14 @@ MAX31855.prototype._read32 = function(callback) {
         throw new Error('MAX31855: Did not read expected number of bytes from device!');
       } else {
         value = bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
-        console.log('Raw value: ' value);
+        console.log('Raw value: ', value);
         callback(value);
       }
     }
   });
 };
 
-/** Returns the internal temperature value in degrees celsius. */
+/** Returns the internal temperature value in degrees Celsius. */
 MAX31855.prototype.readInternalC = function(callback) {
   if(callback) {
     this._read32(function(value) {
@@ -59,7 +59,7 @@ MAX31855.prototype.readInternalC = function(callback) {
   }
 };
 
-/** Return the thermocouple temperature value in degrees celsius. */
+/** Return the thermocouple temperature value in degrees Celsius. */
 MAX31855.prototype.readTempC = function(callback) {
   if(callback) {
     this._read32(function(value) {
@@ -88,7 +88,29 @@ MAX31855.prototype.readTempC = function(callback) {
   }
 };
 
-function max31855() {
+/** Return the thermocouple temperature value in degrees Kelvin. */
+MAX31855.prototype.readTempK = function(callback) {
+  if(callback) {
+    this.readTempC(function(temp) {
+      callback(isNaN(temp) ? NaN : (temp + 273.15));
+    });
+  } else {
+    console.log('MAX31855: Read request issued with no callback.');
+  }
+};
+
+/** Return the thermocouple temperature value in degrees Fahrenheit. */
+MAX31855.prototype.readTempF = function(callback) {
+  if(callback) {
+    this.readTempC(function(temp) {
+      callback(isNaN(temp) ? NaN : ((9/5) * temp) + 32);
+    });
+  } else {
+    console.log('MAX31855: Read request issued with no callback.');
+  }
+};
+
+function max31855(options) {
   if(options === undefined) {
     return new MAX31855({});
   }

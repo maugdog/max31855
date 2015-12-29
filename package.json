@@ -21,6 +21,6 @@
     }
   ],
   "dependencies": {
-    "pi-spi": "^1.0.1"
+    "pi-spi": "^1.0.0"
   }
 }
