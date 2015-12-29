@@ -1,0 +1,26 @@
+{
+  "name": "max31855",
+  "version": "1.0.0",
+  "description": "Node.js package for driving the Adafruit MAX31855 thermocouple temperature amplifier on Raspberry Pi.",
+  "main": "max31855.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Adafruit",
+    "MAX31855",
+    "thermocouple",
+    "amplifier",
+    "library"
+  ],
+  "author": "Max Montgelas",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/brentertz/scapegoat/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "pi-spi": "^1.0.1"
+  }
+}
