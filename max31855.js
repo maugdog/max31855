@@ -46,10 +46,13 @@ MAX31855.prototype.readInternalC = function(callback) {
   		if(value & 0x800) {
         // Negative value, take 2's compliment. Compute this with subtraction
   			// because python is a little odd about handling signed/unsigned.
-  			internal -= 4096;
-  		  // Scale by 0.0625 degrees C per bit and return value.
-  		  callback(internal * 0.0625);
+  			//internal -= 4096;
+
+        // Negative value, take 2's compliment.
+        internal = ~internal + 1;
       }
+      // Scale by 0.0625 degrees C per bit and return value.
+      callback(internal * 0.0625);
     });
   } else {
     console.log('MAX31855: Read request issued with no callback.');
@@ -67,8 +70,12 @@ MAX31855.prototype.readTempC = function(callback) {
         if(value & 0x80000000) { // Check if signed bit is set.
           // Negative value, take 2's compliment. Compute this with subtraction
           // because python is a little odd about handling signed/unsigned.
+          //value >>= 18;
+          //value -= 16384;
+
+          // Negative value, shift the bits and take 2's compliment.
           value >>= 18;
-          value -= 16384;
+          value = ~value + 1;
         } else { // Positive value, just shift the bits to get the value.
           value >>= 18;
         }
