@@ -15,8 +15,9 @@ with hardware SPI. See [here](https://www.raspberrypi.org/documentation/hardware
 ## Usage
 
     var max31855 = require('max31855');
-    max31855.readTempC(function(temp) {
-        console.log('Temp in degrees celsius: ', temp);
+    var tempSensor = new max31855.ThermoSensor({units: max31855.UNITS.FAHRENHEIT});
+    tempSensor.readTemp(function(temp) {
+        console.log('Temp in degrees fahrenheit: ', temp);
     });
 
 ## Release History

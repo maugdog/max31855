@@ -9,8 +9,21 @@
 
 var SPI = require('pi-spi');
 
-/** At the moment, no options are supported */
-function MAX31855(options) {
+var UNITS = {
+    CELSIUS: 0,
+    KELVIN: 1,
+    FAHRENHEIT: 2
+};
+exports.UNITS = UNITS;
+
+/** options: {
+  units: constant -- See units constants above
+}
+*/
+
+function ThermoSensor(options) {
+  // Establish the options
+  this.units = options && options.hasOwnProperty('units') ? options.units : UNITS.CELSIUS;
   // Initialize the SPI settings
   this._spi = SPI.initialize("/dev/spidev0.0");
   this._spi.clockSpeed(5000000);
@@ -19,7 +32,7 @@ function MAX31855(options) {
 }
 
 /** Read 32 bits from the SPI bus. */
-MAX31855.prototype._read32 = function(callback) {
+ThermoSensor.prototype._read32 = function(callback) {
   this._spi.read(incount, function(error, bytes) {
     if(error) {
       console.error(error);
@@ -36,7 +49,7 @@ MAX31855.prototype._read32 = function(callback) {
 };
 
 /** Returns the internal temperature value in degrees Celsius. */
-MAX31855.prototype.readInternalC = function(callback) {
+ThermoSensor.prototype.readInternalC = function(callback) {
   if(callback) {
     this._read32(function(value) {
       // Ignore bottom 4 bits of thermocouple data.
@@ -59,9 +72,23 @@ MAX31855.prototype.readInternalC = function(callback) {
   }
 };
 
-/** Return the thermocouple temperature value in degrees Celsius. */
-MAX31855.prototype.readTempC = function(callback) {
+/** Converts from the degrees Celsius to whatever units are specified in the units property */
+ThermoSensor.prototype._convertToUnitsFromC = function(temp) {
+  switch(this.units) {
+    case UNITS.KELVIN:
+      return temp + 273.15;
+    case UNITS.FAHRENHEIT:
+      return (temp * (9/5)) + 32;
+    case UNITS.CELSIUS:
+    default:
+      return temp;
+  }
+};
+
+/** Return the thermocouple temperature value. Value is returned in degrees of units specified in the units property */
+ThermoSensor.prototype.readTemp = function(callback) {
   if(callback) {
+    var self = this; // Scope closure
     this._read32(function(value) {
       // Check for error reading value.
       if(value & 0x7) {
@@ -79,8 +106,10 @@ MAX31855.prototype.readTempC = function(callback) {
         } else { // Positive value, just shift the bits to get the value.
           value >>= 18;
         }
-        // Scale by 0.25 degrees C per bit and return value.
-        callback(value * 0.25);
+        // Scale by 0.25 degrees C per bit
+        value *= 0.25;
+
+        callback(self._convertToUnitsFromC(value));
       }
     });
   } else {
@@ -88,38 +117,4 @@ MAX31855.prototype.readTempC = function(callback) {
   }
 };
 
-/** Return the thermocouple temperature value in degrees Kelvin. */
-MAX31855.prototype.readTempK = function(callback) {
-  if(callback) {
-    this.readTempC(function(temp) {
-      callback(isNaN(temp) ? NaN : (temp + 273.15));
-    });
-  } else {
-    console.log('MAX31855: Read request issued with no callback.');
-  }
-};
-
-/** Return the thermocouple temperature value in degrees Fahrenheit. */
-MAX31855.prototype.readTempF = function(callback) {
-  if(callback) {
-    this.readTempC(function(temp) {
-      callback(isNaN(temp) ? NaN : ((9/5) * temp) + 32);
-    });
-  } else {
-    console.log('MAX31855: Read request issued with no callback.');
-  }
-};
-
-function max31855(options) {
-  if(options === undefined) {
-    return new MAX31855({});
-  }
-
-  if(typeof options === 'object' && options !== null) {
-    return new MAX31855(options);
-  }
-
-  throw new TypeError('MAX31855: Expected object for argument options');
-}
-
-module.exports = max31855;
+module.exports.ThermoSensor = ThermoSensor;
