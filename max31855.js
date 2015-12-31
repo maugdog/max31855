@@ -9,21 +9,7 @@
 
 var SPI = require('pi-spi');
 
-var UNITS = {
-    CELSIUS: 0,
-    KELVIN: 1,
-    FAHRENHEIT: 2
-};
-exports.UNITS = UNITS;
-
-/** options: {
-  units: constant -- See units constants above
-}
-*/
-
-function ThermoSensor(options) {
-  // Establish the options
-  this.units = options && options.hasOwnProperty('units') ? options.units : UNITS.CELSIUS;
+function MAX31855() {
   // Initialize the SPI settings
   this._spi = SPI.initialize("/dev/spidev0.0");
   this._spi.clockSpeed(5000000);
@@ -32,7 +18,7 @@ function ThermoSensor(options) {
 }
 
 /** Read 32 bits from the SPI bus. */
-ThermoSensor.prototype._read32 = function(callback) {
+MAX31855.prototype._read32 = function(callback) {
   this._spi.read(incount, function(error, bytes) {
     if(error) {
       console.error(error);
@@ -49,7 +35,7 @@ ThermoSensor.prototype._read32 = function(callback) {
 };
 
 /** Returns the internal temperature value in degrees Celsius. */
-ThermoSensor.prototype.readInternalC = function(callback) {
+MAX31855.prototype.readInternalC = function(callback) {
   if(callback) {
     this._read32(function(value) {
       // Ignore bottom 4 bits of thermocouple data.
@@ -72,21 +58,8 @@ ThermoSensor.prototype.readInternalC = function(callback) {
   }
 };
 
-/** Converts from the degrees Celsius to whatever units are specified in the units property */
-ThermoSensor.prototype._convertToUnitsFromC = function(temp) {
-  switch(this.units) {
-    case UNITS.KELVIN:
-      return temp + 273.15;
-    case UNITS.FAHRENHEIT:
-      return (temp * (9/5)) + 32;
-    case UNITS.CELSIUS:
-    default:
-      return temp;
-  }
-};
-
-/** Return the thermocouple temperature value. Value is returned in degrees of units specified in the units property */
-ThermoSensor.prototype.readTemp = function(callback) {
+/** Return the thermocouple temperature value. Value is returned in degrees celsius */
+MAX31855.prototype.readTemp = function(callback) {
   if(callback) {
     var self = this; // Scope closure
     this._read32(function(value) {
@@ -107,9 +80,7 @@ ThermoSensor.prototype.readTemp = function(callback) {
           value >>= 18;
         }
         // Scale by 0.25 degrees C per bit
-        value *= 0.25;
-
-        callback(self._convertToUnitsFromC(value));
+        callback(value * 0.25);
       }
     });
   } else {
@@ -117,4 +88,4 @@ ThermoSensor.prototype.readTemp = function(callback) {
   }
 };
 
-module.exports.ThermoSensor = ThermoSensor;
+module.exports = MAX31855;
