@@ -1,7 +1,7 @@
 {
   "name": "max31855",
   "version": "1.0.0",
-  "description": "Node.js package for driving the Adafruit MAX31855 thermocouple temperature amplifier on Raspberry Pi.",
+  "description": "Node.js package for driving the Adafruit MAX31855 thermocouple temperature amplifier.",
   "main": "max31855.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
