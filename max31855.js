@@ -19,7 +19,7 @@ function MAX31855() {
 
 /** Read 32 bits from the SPI bus. */
 MAX31855.prototype._read32 = function(callback) {
-  this._spi.read(incount, function(error, bytes) {
+  this._spi.read(4, function(error, bytes) {
     if(error) {
       console.error(error);
     } else {
