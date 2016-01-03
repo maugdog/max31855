@@ -8,7 +8,7 @@ This library is a Node.js port and extension of Tony DiCola's Adafruit Python MA
 **Note:** (As of 12/29/2015) The SPI master driver is disabled by default on Raspian Linux and must be enabled before using this library
 with hardware SPI. See [here](https://www.raspberrypi.org/documentation/hardware/raspberrypi/spi/README.md).
 
-To enable SPI you also need to add “dtparam=spi=on” to `/boot/config.txt`
+To enable SPI in Raspian, you also need to add “dtparam=spi=on” to `/boot/config.txt`
 
 After modifying the above mentioned files, you will need to reboot. Also, due to permissions, you *may* need to run node with sudo to access the SPI bus.
 
@@ -21,7 +21,7 @@ After modifying the above mentioned files, you will need to reboot. Also, due to
     var max31855 = require('max31855');
 
     var thermoSensor = new max31855();
-    thermoSensor.readTemp(function(temp) {
+    thermoSensor.readTempC(function(temp) {
         console.log('Temp in degrees celsius: ', temp);
     });
 

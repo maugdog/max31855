@@ -43,10 +43,6 @@ MAX31855.prototype.readInternalC = function(callback) {
   		// Grab bottom 11 bits as internal temperature data.
   		var internal = value & 0x7FF;
   		if(value & 0x800) {
-        // Negative value, take 2's compliment. Compute this with subtraction
-  			// because python is a little odd about handling signed/unsigned.
-  			//internal -= 4096;
-
         // Negative value, take 2's compliment.
         internal = ~internal + 1;
       }
@@ -59,7 +55,7 @@ MAX31855.prototype.readInternalC = function(callback) {
 };
 
 /** Return the thermocouple temperature value. Value is returned in degrees celsius */
-MAX31855.prototype.readTemp = function(callback) {
+MAX31855.prototype.readTempC = function(callback) {
   if(callback) {
     var self = this; // Scope closure
     this._read32(function(value) {
@@ -68,11 +64,6 @@ MAX31855.prototype.readTemp = function(callback) {
         callback(NaN);
       } else {
         if(value & 0x80000000) { // Check if signed bit is set.
-          // Negative value, take 2's compliment. Compute this with subtraction
-          // because python is a little odd about handling signed/unsigned.
-          //value >>= 18;
-          //value -= 16384;
-
           // Negative value, shift the bits and take 2's compliment.
           value >>= 18;
           value = ~value + 1;
