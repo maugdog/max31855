@@ -18,7 +18,7 @@ function MAX31855() {
 }
 
 /** Read 32 bits from the SPI bus. */
-MAX31855.prototype._read32 = function(callback) {
+MAX31855.prototype._read32 = function(callback, logRawValue) {
   this._spi.read(4, function(error, bytes) {
     if(error) {
       console.error(error);
@@ -27,7 +27,7 @@ MAX31855.prototype._read32 = function(callback) {
         throw new Error('MAX31855: Did not read expected number of bytes from device!');
       } else {
         value = bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
-        console.log('Raw value: ', value);
+        if (logRawValue) console.log('Raw value: ', value);
         callback(value);
       }
     }
@@ -35,7 +35,7 @@ MAX31855.prototype._read32 = function(callback) {
 };
 
 /** Returns the internal temperature value in degrees Celsius. */
-MAX31855.prototype.readInternalC = function(callback) {
+MAX31855.prototype.readInternalC = function(callback, logRawValue = false) {
   if(callback) {
     this._read32(function(value) {
       // Ignore bottom 4 bits of thermocouple data.
@@ -48,14 +48,14 @@ MAX31855.prototype.readInternalC = function(callback) {
       }
       // Scale by 0.0625 degrees C per bit and return value.
       callback(internal * 0.0625);
-    });
+    }, logRawValue);
   } else {
     console.log('MAX31855: Read request issued with no callback.');
   }
 };
 
 /** Return the thermocouple temperature value. Value is returned in degrees celsius */
-MAX31855.prototype.readTempC = function(callback) {
+MAX31855.prototype.readTempC = function(callback, logRawValue = false) {
   if(callback) {
     var self = this; // Scope closure
     this._read32(function(value) {
@@ -73,7 +73,7 @@ MAX31855.prototype.readTempC = function(callback) {
         // Scale by 0.25 degrees C per bit
         callback(value * 0.25);
       }
-    });
+    }, logRawValue);
   } else {
     console.log('MAX31855: Read request issued with no callback.');
   }
